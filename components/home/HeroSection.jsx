@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Particles from "@/components/home/Particles";
+import AdminPanel from "@/components/admin/AdminPanel";
 
 export default function HeroSection() {
+  const [clickCount, setClickCount] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  useEffect(() => {
+    if (clickCount === 0) return;
+    const timer = setTimeout(() => setClickCount(0), 5000); // reseta em 5s
+    return () => clearTimeout(timer);
+  }, [clickCount]);
+
+  const handleLogoClick = () => {
+    setClickCount(prev => {
+      const next = prev + 1;
+      if (next >= 5) {
+        setModalOpen(true);
+        return 0;
+      }
+      return next;
+    });
+  };
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
       {/* Background gradient overlay */}
@@ -31,7 +50,8 @@ export default function HeroSection() {
           className="mb-8"
         >
           <div className="inline-flex items-center justify-center w-32 h-32 mb-6">
-            <svg viewBox="0 0 200 200" className="w-full h-full">
+            <button onClick={handleLogoClick} aria-label="logo" className="w-full h-full p-0 m-0">
+              <svg viewBox="0 0 200 200" className="w-full h-full">
               <motion.path
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
@@ -41,8 +61,24 @@ export default function HeroSection() {
                 stroke="#D4A5A5"
                 strokeWidth="2"
               />
-            </svg>
+              </svg>
+            </button>
           </div>
+
+      {/* Admin modal (oculto por padrão) */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setModalOpen(false)} />
+          <div className="relative z-60 p-6 w-[95%] max-w-4xl">
+            <div className="flex justify-end mb-4">
+              <button onClick={() => setModalOpen(false)} className="text-gray-300 hover:text-white">Fechar</button>
+            </div>
+            <div className="bg-zinc-900/80 rounded-xl p-4">
+              <AdminPanel />
+            </div>
+          </div>
+        </div>
+      )}
         </motion.div>
 
         {/* Main heading */}
